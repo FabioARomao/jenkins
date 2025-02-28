@@ -1,0 +1,46 @@
+pipeline {
+    agent any  // Pode rodar em qualquer nó disponível
+
+    environment {
+        PYTHON_ENV = "/usr/bin/python3"  // Caminho do Python no servidor
+    }
+
+    stages {
+        stage('Checkout Código') {
+            steps {
+                git 'https://github.com/FabioARomao/Course.git/jenkins/'  // Clona o repositório com os scripts
+            }
+        }
+
+        stage('Instalar Dependências') {
+            steps {
+                sh '${PYTHON_ENV} -m pip install --upgrade pip'
+                sh '${PYTHON_ENV} -m pip install -r requirements.txt'  // Instala Pandas, NumPy, etc.
+            }
+        }
+
+        stage('Baixar Dados') {
+            steps {
+                sh 'python scripts/download_data.py'  // Exemplo: pega do S3 ou banco
+            }
+        }
+
+        stage('Processar Dados') {
+            steps {
+                sh 'python scripts/preprocess.py'  // Executa a limpeza e transformação dos dados
+            }
+        }
+
+        stage('Salvar Dados Processados') {
+            steps {
+                sh 'python scripts/save_data.py'  // Pode salvar em S3, PostgreSQL, etc.
+            }
+        }
+
+        stage('Finalizado') {
+            steps {
+                echo "Pipeline concluída com sucesso! 🚀"
+            }
+        }
+    }
+}
