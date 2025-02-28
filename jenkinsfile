@@ -2,13 +2,19 @@ pipeline {
     agent any  // Pode rodar em qualquer nó disponível
 
     environment {
-        PYTHON_ENV = "/usr/bin/python"  // Caminho do Python no servidor
+        PYTHON_ENV = "/usr/bin/python3"  // Caminho do Python no servidor
     }
 
     stages {
         stage('Checkout Código') {
             steps {
-                git branch: 'main', url: 'https://github.com/FabioARomao/jenkins.git'  // Clona o repositório com os scripts
+                git branch: 'main', url: 'https://github.com/FabioARomao/jenkins.git  // Clona o repositório com os scripts
+            }
+        }
+
+        stage('Instalar Python') {
+            steps {
+                sh 'sudo apt-get update && sudo apt-get install -y python3 python3-pip'
             }
         }
 
