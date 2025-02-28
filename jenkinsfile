@@ -2,7 +2,7 @@ pipeline {
     agent any  // Pode rodar em qualquer nó disponível
 
     environment {
-        PYTHON_ENV = "/usr/bin/python3"  // Caminho do Python no servidor
+        PYTHON_ENV = "/usr/bin/python"  // Caminho do Python no servidor
     }
 
     stages {
