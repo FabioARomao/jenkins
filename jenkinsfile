@@ -18,6 +18,16 @@ pipeline {
             }
         }
 
+        stage('Configurar Python') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                '''
+            }
+        }
+
         stage('Instalar Dependências') {
             steps {
                 sh '${PYTHON_ENV} -m pip install --upgrade pip'
