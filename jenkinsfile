@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Código') {
             steps {
-                git 'https://github.com/FabioARomao/Course.git/jenkins/'  // Clona o repositório com os scripts
+                git 'https://github.com/FabioARomao/jenkins'  // Clona o repositório com os scripts
             }
         }
 
