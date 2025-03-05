@@ -2,126 +2,126 @@ pipeline {
     agent any
 
     environment {
-        // Definir variáveis de ambiente, como o nome do ambiente virtual
+        // Nome do ambiente virtual
         VENV_DIR = 'venv'
     }
 
     stages {
-	stage('Preparar Ambiente') {
-	    steps {
-	        script {
-	            sh '''#!/bin/bash
-	                set -e  # Faz o script falhar imediatamente se algum comando falhar
-	                
-	                # Atualizar repositórios e instalar dependências
-	                apt-get update && apt-get install -y python3.11-venv python3-pip
-	                
-	                # Criar e ativar o ambiente virtual
-	                python3 -m venv ${VENV_DIR}
-	                source ${VENV_DIR}/bin/activate
-	
-	                # Atualizar o pip
-	                pip install --upgrade pip
-	
-	                # Instalar o pandas
-	                pip install pandas
-	            '''
-	        }
-	    }
-	}
 
+        stage('Preparar Ambiente') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        set -e  # Para execução em caso de erro
 
-	stage('Copiar Scripts') {
-	    steps {
-	        script {
-	            sh '''
-	                # Criar diretório de destino (caso não exista)
-	                mkdir -p /app/scripts
-	                
-	                # Copiar os scripts
-	                cp scripts/*.py /app/scripts/
-	                
-	                # Listar os arquivos copiados para verificar
-	                ls -l /app/scripts/
-	            '''
-	        }
-	    }
-	}
+                        # Atualizar pacotes e instalar dependências
+                        apt-get update && apt-get install -y python3.11-venv python3-pip && apt-get clean
+
+                        # Criar o ambiente virtual
+                        python3 -m venv ${VENV_DIR}
+
+                        # Ativar ambiente virtual e instalar dependências
+                        . ${VENV_DIR}/bin/activate
+                        pip install --upgrade pip
+                        pip install pandas
+                    '''
+                }
+            }
+        }
+
+        stage('Copiar Scripts') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        set -e
+                        
+                        # Criar diretório de destino
+                        mkdir -p /app/scripts
+                        
+                        # Copiar scripts para a pasta destino
+                        cp scripts/*.py /app/scripts/
+                        
+                        # Listar arquivos copiados
+                        ls -l /app/scripts/
+                    '''
+                }
+            }
+        }
+
+        stage('Instalar Dependências') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        set -e
+                        
+                        . ${VENV_DIR}/bin/activate
+                        pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Rodar Testes') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        set -e
+                        
+                        . ${VENV_DIR}/bin/activate
+                        pytest --maxfail=1 --disable-warnings -q
+                    '''
+                }
+            }
+        }
+
+        stage('Gerar Relatório de Testes') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        set -e
+                        
+                        . ${VENV_DIR}/bin/activate
+                        pytest --maxfail=1 --disable-warnings --junitxml=resultados.xml
+                    '''
+                }
+            }
+        }
+
+        stage('Publicar Relatório') {
+            steps {
+                junit '**/resultados.xml'  // Publicar o relatório no Jenkins
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'  // Só executa no branch main
+            }
+            steps {
+                script {
+                    echo 'Deploying application...'
+                    // Exemplo de deploy (ajuste conforme necessário)
+                    // sh './deploy.sh'
+                }
+            }
+        }
 
         stage('Finalizado') {
             steps {
                 echo "Pipeline concluída com sucesso! 🚀"
             }
         }
+    }
 
-  	stage('Instalar Dependências') {
-  	    steps {
-  	        script {
-  	            // Instalar dependências do arquivo requirements.txt
-  	            sh '''
-  	                source ${VENV_DIR}/bin/activate
-  	                pip install -r requirements.txt
-  	            '''
-  	        }
-  	    }
-  	}
-
-  	stage('Rodar Testes') {
-  	    steps {
-  	        script {
-  	            // Rodar os testes com pytest (ajuste conforme sua necessidade)
-  	            sh '''
-  	                source ${VENV_DIR}/bin/activate
-  	                pytest --maxfail=1 --disable-warnings -q
-  	            '''
-  	        }
-  	    }
-  	}
-
-  	stage('Gerar Relatório de Testes') {
-  	    steps {
-  	        script {
-  	            // Gerar relatório de testes (por exemplo, em formato JUnit)
-  	            sh '''
-  	                source ${VENV_DIR}/bin/activate
-  	                pytest --maxfail=1 --disable-warnings --junitxml=resultados.xml
-  	            '''
-  	        }
-  	    }
-  	}
-
-  	stage('Publicar Relatório') {
-  	    steps {
-  	        junit '**/resultados.xml'  // Publicar o relatório de testes no Jenkins
-  	    }
-  	}
-
-  	stage('Deploy') {
-  	    when {
-  	        branch 'main'  // Só rodar o deploy se for o branch 'main'
-  	    }
-  	    steps {
-  	        script {
-  	            // Comandos de deploy (ajuste conforme sua infraestrutura)
-  	            echo 'Deploying application...'
-  	            // Exemplo: Deploy para servidor ou integração com AWS, Kubernetes, etc.
-  	            // sh './deploy.sh'
-  	        }
-  	    }
-  	}
-
-
-  	  post {
-  	      always {
-  	          // Limpeza ou ações sempre executadas, como desativar o ambiente virtual
-  	          sh 'deactivate || true'
-  	      }
-  	      success {
-  	          // Ações que ocorrem em caso de sucesso, como enviar uma notificação
-  	          echo 'Pipeline executada com sucesso!'
-  	      }
-  	      failure {
-  	          // Ações que ocorrem em caso de falha
-  	          echo 'Pipeline falhou.'
-  	      }
-  	  }
+    post {
+        always {
+            echo "Pipeline finalizado, executando ações finais..."
+        }
+        success {
+            echo 'Pipeline executada com sucesso!'
+        }
+        failure {
+            echo 'Pipeline falhou.'
+        }
+    }
+}
