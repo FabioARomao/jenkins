@@ -54,75 +54,75 @@ pipeline {
             }
         }
 
-        stage('Instalar Dependências') {
-            steps {
-                script {
-                    // Instalar dependências do arquivo requirements.txt
-                    sh '''
-                        source ${VENV_DIR}/bin/activate
-                        pip install -r requirements.txt
-                    '''
-                }
-            }
-        }
+  	stage('Instalar Dependências') {
+  	    steps {
+  	        script {
+  	            // Instalar dependências do arquivo requirements.txt
+  	            sh '''
+  	                source ${VENV_DIR}/bin/activate
+  	                pip install -r requirements.txt
+  	            '''
+  	        }
+  	    }
+  	}
 
-        stage('Rodar Testes') {
-            steps {
-                script {
-                    // Rodar os testes com pytest (ajuste conforme sua necessidade)
-                    sh '''
-                        source ${VENV_DIR}/bin/activate
-                        pytest --maxfail=1 --disable-warnings -q
-                    '''
-                }
-            }
-        }
+  	stage('Rodar Testes') {
+  	    steps {
+  	        script {
+  	            // Rodar os testes com pytest (ajuste conforme sua necessidade)
+  	            sh '''
+  	                source ${VENV_DIR}/bin/activate
+  	                pytest --maxfail=1 --disable-warnings -q
+  	            '''
+  	        }
+  	    }
+  	}
 
-        stage('Gerar Relatório de Testes') {
-            steps {
-                script {
-                    // Gerar relatório de testes (por exemplo, em formato JUnit)
-                    sh '''
-                        source ${VENV_DIR}/bin/activate
-                        pytest --maxfail=1 --disable-warnings --junitxml=resultados.xml
-                    '''
-                }
-            }
-        }
+  	stage('Gerar Relatório de Testes') {
+  	    steps {
+  	        script {
+  	            // Gerar relatório de testes (por exemplo, em formato JUnit)
+  	            sh '''
+  	                source ${VENV_DIR}/bin/activate
+  	                pytest --maxfail=1 --disable-warnings --junitxml=resultados.xml
+  	            '''
+  	        }
+  	    }
+  	}
 
-        stage('Publicar Relatório') {
-            steps {
-                junit '**/resultados.xml'  // Publicar o relatório de testes no Jenkins
-            }
-        }
+  	stage('Publicar Relatório') {
+  	    steps {
+  	        junit '**/resultados.xml'  // Publicar o relatório de testes no Jenkins
+  	    }
+  	}
 
-        stage('Deploy') {
-            when {
-                branch 'main'  // Só rodar o deploy se for o branch 'main'
-            }
-            steps {
-                script {
-                    // Comandos de deploy (ajuste conforme sua infraestrutura)
-                    echo 'Deploying application...'
-                    // Exemplo: Deploy para servidor ou integração com AWS, Kubernetes, etc.
-                    // sh './deploy.sh'
-                }
-            }
-        }
-    }
+  	stage('Deploy') {
+  	    when {
+  	        branch 'main'  // Só rodar o deploy se for o branch 'main'
+  	    }
+  	    steps {
+  	        script {
+  	            // Comandos de deploy (ajuste conforme sua infraestrutura)
+  	            echo 'Deploying application...'
+  	            // Exemplo: Deploy para servidor ou integração com AWS, Kubernetes, etc.
+  	            // sh './deploy.sh'
+  	        }
+  	    }
+  	}
 
-    post {
-        always {
-            // Limpeza ou ações sempre executadas, como desativar o ambiente virtual
-            sh 'deactivate || true'
-        }
-        success {
-            // Ações que ocorrem em caso de sucesso, como enviar uma notificação
-            echo 'Pipeline executada com sucesso!'
-        }
-        failure {
-            // Ações que ocorrem em caso de falha
-            echo 'Pipeline falhou.'
-        }
-    }
+
+  	  post {
+  	      always {
+  	          // Limpeza ou ações sempre executadas, como desativar o ambiente virtual
+  	          sh 'deactivate || true'
+  	      }
+  	      success {
+  	          // Ações que ocorrem em caso de sucesso, como enviar uma notificação
+  	          echo 'Pipeline executada com sucesso!'
+  	      }
+  	      failure {
+  	          // Ações que ocorrem em caso de falha
+  	          echo 'Pipeline falhou.'
+  	      }
+  	  }
 }
