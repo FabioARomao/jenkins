@@ -7,27 +7,33 @@ pipeline {
     }
 
     stages {
-        stage('Preparar Ambiente') {
-            steps {
-                script {
-                    // Instalar dependências e configurar o ambiente virtual
-                    sh '''
-                        # Atualizar repositórios e instalar dependências
-                        apt-get update && apt-get install -y python3.11-venv python3-pip
+	stage('Preparar Ambiente') {
+	    steps {
+	        script {
+	            sh '''#!/bin/bash
+	                set -e  # Faz o script falhar imediatamente se algum comando falhar
+	                
+	                # Atualizar repositórios e instalar dependências
+	                apt-get update && apt-get install -y python3.11-venv python3-pip
+	                
+	                # Criar e ativar o ambiente virtual
+	                python3 -m venv ${VENV_DIR}
+	                source ${VENV_DIR}/bin/activate
+	
+	                # Atualizar o pip
+	                pip install --upgrade pip
+	
+	                # Instalar o pandas
+	                pip install pandas
+	            '''
+	        }
+	    }
+	}
 
-                        # Criar e ativar o ambiente virtual
-                        python3 -m venv ${VENV_DIR}
-                        source ${VENV_DIR}/bin/activate
 
-                        # Atualizar o pip
-                        pip install --upgrade pip
-                    
-			#Instalar o pandas
-			pip install pandas
-                    '''
-                }
-            }
+
         }
+
 
         stage('Instalar Dependências') {
             steps {
