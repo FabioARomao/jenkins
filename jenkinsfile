@@ -21,6 +21,9 @@ pipeline {
 
                         # Atualizar o pip
                         pip install --upgrade pip
+                    
+			#Instalar o pandas
+			pip install pandas
                     '''
                 }
             }
