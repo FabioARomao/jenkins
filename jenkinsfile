@@ -48,26 +48,6 @@ pipeline {
 	    }
 	}
 
-
-
-        #stage('Baixar Dados') {
-        #    steps {
-        #        sh 'python scripts/download_data.py'  // Exemplo: pega do S3 ou banco
-        #    }
-        #}
-
-        #stage('Processar Dados') {
-        #    steps {
-        #        sh 'python scripts/preprocess.py'  // Executa a limpeza e transformação dos dados
-        #    }
-        #}
-
-        #stage('Salvar Dados Processados') {
-        #    steps {
-        #        sh 'python scripts/save_data.py'  // Pode salvar em S3, PostgreSQL, etc.
-        #    }
-        #}
-
         stage('Finalizado') {
             steps {
                 echo "Pipeline concluída com sucesso! 🚀"
